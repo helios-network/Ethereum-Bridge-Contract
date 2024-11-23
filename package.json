@@ -11,7 +11,7 @@
     "run-server": "npx hardhat node --port 7545",
     "deploy": "npx hardhat run --network bsc scripts/deploy.js",
     "compile": "npx hardhat compile",
-    "verify": "truffle run verify Peggy --network bsc",
+    "verify": "npx hardhat verify --network bsc ADDRESS",
     "deploySpecific": "truffle migrate -f 11 --to 11"
   },
   "author": "Helios Team",

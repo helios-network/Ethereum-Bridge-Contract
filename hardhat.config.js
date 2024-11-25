@@ -7,7 +7,8 @@ require('hardhat-deploy');
 module.exports = {
   etherscan: {
     apiKey: {
-      bsc: secret.API_KEY
+      bsc: secret.API_KEY,
+      mainnet: secret.ETHER_SCAN_API_KEY
     }
   },
   networks: {
@@ -20,7 +21,17 @@ module.exports = {
             apiUrl: 'https://api.bscscan.com'
           }
         }
-    }
+    },
+    mainnet: {
+      // truffle deploy --network avax
+      url: `https://ethereum-rpc.publicnode.com`,
+      accounts: [secret.MMENOMIC],
+      verify: {
+        etherscan: {
+          apiUrl: 'https://etherscan.io'
+        }
+      }
+  },
   },
   solidity: {
     version: "0.8.9",

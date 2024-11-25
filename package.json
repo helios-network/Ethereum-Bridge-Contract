@@ -9,9 +9,9 @@
     "lint": "npx prettier --write ./contracts",
     "build": "truffle build",
     "run-server": "npx hardhat node --port 7545",
-    "deploy": "npx hardhat run --network bsc scripts/deploy.js",
+    "deploy": "npx hardhat run --network mainnet scripts/deploy.js",
     "compile": "npx hardhat compile",
-    "verify": "npx hardhat verify --network bsc ADDRESS",
+    "verify": "npx hardhat verify --network mainnet ADDRESS",
     "deploySpecific": "truffle migrate -f 11 --to 11"
   },
   "author": "Helios Team",

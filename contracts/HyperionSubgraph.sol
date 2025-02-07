@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.0;
 
-import "./Peggy.sol";
+import "./Hyperion.sol";
 
 // Legacy events and functions for indexing in subgraph
 
-contract PeggySubgraph is Peggy {
+contract HyperionSubgraph is Hyperion {
     using SafeERC20 for IERC20;
 
     event SendToCosmosEvent(

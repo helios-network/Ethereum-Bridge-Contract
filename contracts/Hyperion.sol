@@ -32,7 +32,7 @@ struct ValsetArgs {
 // AND BE AWARE OF INHERITANCE VARIABLES!
 // Inherited contracts contain storage slots and must be accounted for in any upgrades
 // always test an exact upgrade on testnet and localhost before mainnet upgrades.
-contract Peggy is
+contract Hyperion is
     Initializable,
     OwnableUpgradeableWithExpiry,
     Pausable,
@@ -50,7 +50,7 @@ contract Peggy is
     uint256 public state_lastEventNonce = 0;
 
     // These are set once at initialization
-    bytes32 public state_peggyId;
+    bytes32 public state_hyperionId;
     uint256 public state_powerThreshold;
 
     mapping(address => bool) public isHeliosNativeToken;
@@ -121,8 +121,8 @@ contract Peggy is
     }
 
     function initialize(
-        // A unique identifier for this peggy instance to use in signatures
-        bytes32 _peggyId,
+        // A unique identifier for this hyperion instance to use in signatures
+        bytes32 _hyperionId,
         // How much voting power is needed to approve operations
         uint256 _powerThreshold,
         // The validator set, not in valset args format since many of it's
@@ -140,11 +140,11 @@ contract Peggy is
         ValsetArgs memory _valset;
         _valset = ValsetArgs(_validators, _powers, 0, 0, address(0));
 
-        bytes32 newCheckpoint = makeCheckpoint(_valset, _peggyId);
+        bytes32 newCheckpoint = makeCheckpoint(_valset, _hyperionId);
 
         // ACTIONS
 
-        state_peggyId = _peggyId;
+        state_hyperionId = _hyperionId;
         state_powerThreshold = _powerThreshold;
         state_lastValsetCheckpoint = newCheckpoint;
         state_lastEventNonce = state_lastEventNonce + 1;
@@ -185,20 +185,20 @@ contract Peggy is
     // A checkpoint is a hash of all relevant information about the valset. This is stored by the contract,
     // instead of storing the information directly. This saves on storage and gas.
     // The format of the checkpoint is:
-    // h(peggyId, "checkpoint", valsetNonce, validators[], powers[])
+    // h(hyperionId, "checkpoint", valsetNonce, validators[], powers[])
     // Where h is the keccak256 hash function.
     // The validator powers must be decreasing or equal. This is important for checking the signatures on the
     // next valset, since it allows the caller to stop verifying signatures once a quorum of signatures have been verified.
     function makeCheckpoint(
         ValsetArgs memory _valsetArgs,
-        bytes32 _peggyId
+        bytes32 _hyperionId
     ) private pure returns (bytes32) {
         // bytes32 encoding of the string "checkpoint"
         bytes32 methodName = 0x636865636b706f696e7400000000000000000000000000000000000000000000;
 
         bytes32 checkpoint = keccak256(
             abi.encode(
-                _peggyId,
+                _hyperionId,
                 methodName,
                 _valsetArgs.valsetNonce,
                 _valsetArgs.validators,
@@ -299,13 +299,13 @@ contract Peggy is
 
         // Check that the supplied current validator set matches the saved checkpoint
         require(
-            makeCheckpoint(_currentValset, state_peggyId) ==
+            makeCheckpoint(_currentValset, state_hyperionId) ==
                 state_lastValsetCheckpoint,
             "Supplied current validators and powers do not match checkpoint."
         );
 
         // Check that enough current validators have signed off on the new validator set
-        bytes32 newCheckpoint = makeCheckpoint(_newValset, state_peggyId);
+        bytes32 newCheckpoint = makeCheckpoint(_newValset, state_hyperionId);
         checkValidatorSignatures(
             _currentValset.validators,
             _currentValset.powers,
@@ -408,7 +408,7 @@ contract Peggy is
 
             // Check that the supplied current validator set matches the saved checkpoint
             require(
-                makeCheckpoint(_currentValset, state_peggyId) ==
+                makeCheckpoint(_currentValset, state_hyperionId) ==
                     state_lastValsetCheckpoint,
                 "Supplied current validators and powers do not match checkpoint."
             );
@@ -430,7 +430,7 @@ contract Peggy is
                 // Get hash of the transaction batch and checkpoint
                 keccak256(
                     abi.encode(
-                        state_peggyId,
+                        state_hyperionId,
                         // bytes32 encoding of "transactionBatch"
                         0x7472616e73616374696f6e426174636800000000000000000000000000000000,
                         _amounts,

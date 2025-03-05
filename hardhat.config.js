@@ -12,6 +12,16 @@ module.exports = {
     }
   },
   networks: {
+    amoy: {
+      // truffle deploy --network avax
+      url: `https://rpc-amoy.polygon.technology`,
+      accounts: [secret.MMENOMIC],
+      verify: {
+        etherscan: {
+          apiUrl: 'https://amoy.polygonscan.com'
+        }
+      }
+  },
     bsc: {
         // truffle deploy --network avax
         url: `https://bsc-dataseed4.binance.org`,

@@ -2,8 +2,8 @@ const hre = require("hardhat");
 
 async function main() {
 
-    const PeggyAddress = "0x9F15F76a0D7272901aB1C949c209B76d9B6b9392";
-    const peggyContract = (await hre.ethers.getContractFactory("Peggy")).attach(PeggyAddress);
+    const PeggyAddress = "0x75B83dDeb27dbEF2702bdC462B4F1fEFF0dB0E68";
+    const peggyContract = (await hre.ethers.getContractFactory("Hyperion")).attach(PeggyAddress);
 
     const COSMOS_DENOM="helios"
     const ERC20_NAME="HELIOS"

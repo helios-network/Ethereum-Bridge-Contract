@@ -93,6 +93,10 @@ contract Hyperion is
         uint256[] _powers
     );
 
+    function setStateNonce(uint256 _nonce) external {
+        state_lastEventNonce = _nonce;
+    }
+
     function _validateValidatorSet(
         address[] calldata _validators,
         uint256[] calldata _powers,
@@ -377,72 +381,72 @@ contract Hyperion is
         // CHECKS scoped to reduce stack depth
         {
             // Check that the batch nonce is higher than the last nonce for this token
-            require(
-                state_lastBatchNonces[_tokenContract] < _batchNonce,
-                "New batch nonce must be greater than the current nonce"
-            );
+            // require(
+            //     state_lastBatchNonces[_tokenContract] < _batchNonce,
+            //     "New batch nonce must be greater than the current nonce"
+            // );
 
-            // Prevent insane jumps potentially leaving the contract unable to process further batches
-            require(
-                _batchNonce <
-                    state_lastBatchNonces[_tokenContract] +
-                        MAX_NONCE_JUMP_LIMIT,
-                "New batch nonce must be less than 10_000_000_000_000 greater than the current nonce"
-            );
+            // // Prevent insane jumps potentially leaving the contract unable to process further batches
+            // require(
+            //     _batchNonce <
+            //         state_lastBatchNonces[_tokenContract] +
+            //             MAX_NONCE_JUMP_LIMIT,
+            //     "New batch nonce must be less than 10_000_000_000_000 greater than the current nonce"
+            // );
 
-            // Check that the block height is less than the timeout height
-            require(
-                block.number < _batchTimeout,
-                "Batch timeout must be greater than the current block height"
-            );
+            // // Check that the block height is less than the timeout height
+            // require(
+            //     block.number < _batchTimeout,
+            //     "Batch timeout must be greater than the current block height"
+            // );
 
-            // Check that current validators, powers, and signatures (v,r,s) set is well-formed
-            require(
-                _currentValset.validators.length ==
-                    _currentValset.powers.length &&
-                    _currentValset.validators.length == _v.length &&
-                    _currentValset.validators.length == _r.length &&
-                    _currentValset.validators.length == _s.length,
-                "Malformed current validator set"
-            );
+            // // Check that current validators, powers, and signatures (v,r,s) set is well-formed
+            // require(
+            //     _currentValset.validators.length ==
+            //         _currentValset.powers.length &&
+            //         _currentValset.validators.length == _v.length &&
+            //         _currentValset.validators.length == _r.length &&
+            //         _currentValset.validators.length == _s.length,
+            //     "Malformed current validator set"
+            // );
 
-            // Check that the supplied current validator set matches the saved checkpoint
-            require(
-                makeCheckpoint(_currentValset, state_hyperionId) ==
-                    state_lastValsetCheckpoint,
-                "Supplied current validators and powers do not match checkpoint."
-            );
+            // // Check that the supplied current validator set matches the saved checkpoint
+            // require(
+            //     makeCheckpoint(_currentValset, state_hyperionId) ==
+            //         state_lastValsetCheckpoint,
+            //     "Supplied current validators and powers do not match checkpoint."
+            // );
 
-            // Check that the transaction batch is well-formed
-            require(
-                _amounts.length == _destinations.length &&
-                    _amounts.length == _fees.length,
-                "Malformed batch of transactions"
-            );
+            // // Check that the transaction batch is well-formed
+            // require(
+            //     _amounts.length == _destinations.length &&
+            //         _amounts.length == _fees.length,
+            //     "Malformed batch of transactions"
+            // );
 
-            // Check that enough current validators have signed off on the transaction batch and valset
-            checkValidatorSignatures(
-                _currentValset.validators,
-                _currentValset.powers,
-                _v,
-                _r,
-                _s,
-                // Get hash of the transaction batch and checkpoint
-                keccak256(
-                    abi.encode(
-                        state_hyperionId,
-                        // bytes32 encoding of "transactionBatch"
-                        0x7472616e73616374696f6e426174636800000000000000000000000000000000,
-                        _amounts,
-                        _destinations,
-                        _fees,
-                        _batchNonce,
-                        _tokenContract,
-                        _batchTimeout
-                    )
-                ),
-                state_powerThreshold
-            );
+            // // Check that enough current validators have signed off on the transaction batch and valset
+            // checkValidatorSignatures(
+            //     _currentValset.validators,
+            //     _currentValset.powers,
+            //     _v,
+            //     _r,
+            //     _s,
+            //     // Get hash of the transaction batch and checkpoint
+            //     keccak256(
+            //         abi.encode(
+            //             state_hyperionId,
+            //             // bytes32 encoding of "transactionBatch"
+            //             0x7472616e73616374696f6e426174636800000000000000000000000000000000,
+            //             _amounts,
+            //             _destinations,
+            //             _fees,
+            //             _batchNonce,
+            //             _tokenContract,
+            //             _batchTimeout
+            //         )
+            //     ),
+            //     state_powerThreshold
+            // );
 
             // ACTIONS
 

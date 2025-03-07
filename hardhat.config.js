@@ -8,8 +8,19 @@ module.exports = {
   etherscan: {
     apiKey: {
       bsc: secret.API_KEY,
-      mainnet: secret.ETHER_SCAN_API_KEY
-    }
+      mainnet: secret.ETHER_SCAN_API_KEY,
+      amoy: secret.POLYGON_SCAN_API_KEY
+    },
+    customChains: [
+      {
+        network: "amoy",
+        chainId: 80002,
+        urls: {
+          apiURL: "https://api-amoy.polygonscan.com/api",
+          browserURL: "https://amoy.polygonscan.com"
+        }
+      }
+    ]
   },
   networks: {
     amoy: {

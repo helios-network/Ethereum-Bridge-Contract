@@ -2,15 +2,15 @@ const hre = require("hardhat");
 
 async function main() {
 
-    const PeggyAddress = "0x9F15F76a0D7272901aB1C949c209B76d9B6b9392";
-    const peggyContract = (await hre.ethers.getContractFactory("Peggy")).attach(PeggyAddress);
+    const HyperionAddress = "0x187547175959a1A59142f5D1B39fb39630DA8C8B";
+    const hyperionContract = (await hre.ethers.getContractFactory("Hyperion")).attach(HyperionAddress);
 
-    const PEGGY_ID="0x696e6a6563746976652d70656767796964000000000000000000000000000000"
+    const HYPERION_ID="0x1000000000000000000000000000000000000000000000000000000000000000"
     const POWER_THRESHOLD=1431655765
-    const VALIDATOR_ADDRESSES=["0x"]
+    const VALIDATOR_ADDRESSES=["0x17267eB1FEC301848d4B5140eDDCFC48945427Ab"]
     const VALIDATOR_POWERS=[2147483647]
 
-    const result = await peggyContract.initialize(PEGGY_ID, POWER_THRESHOLD, VALIDATOR_ADDRESSES, VALIDATOR_POWERS);
+    const result = await hyperionContract.initialize(HYPERION_ID, POWER_THRESHOLD, VALIDATOR_ADDRESSES, VALIDATOR_POWERS);
 
     console.log(result);
 }

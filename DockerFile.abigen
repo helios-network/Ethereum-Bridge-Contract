@@ -1,0 +1,18 @@
+# Stage 1
+FROM golang:1.23.3-bullseye AS build
+WORKDIR /app
+RUN go install github.com/ethereum/go-ethereum/cmd/abigen@latest
+# Stage 2
+FROM node:18.16.0 AS final
+WORKDIR /app
+COPY --from=build /go/bin/abigen /usr/bin/abigen
+# RUN npm install -g solc@0.8.25
+RUN apt-get update
+# Installer solc (binaire officiel)
+RUN curl -L https://raw.githubusercontent.com/nikitastupin/solc/main/linux/aarch64/solc-v0.8.25 -o /usr/local/bin/solc \
+    && chmod +x /usr/local/bin/solc
+# Ajouter un script d'entrée pour compiler puis générer automatiquement
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["entrypoint.sh"]

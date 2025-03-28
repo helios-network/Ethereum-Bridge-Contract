@@ -26,3 +26,11 @@
 Required ../hyperion repository
 
 `make exportwrappers`
+
+## Audit
+
+- **Audit File** : [Audit](https://github.com/helios-network/Ethereum-Bridge-Contract/blob/main/audit.pdf).
+
+## Credit
+
+Thanks for the works of Injective projet, this project is inspired by them.

@@ -48,7 +48,9 @@ contract Hyperion is
     mapping(address => uint256) public state_lastBatchNonces;
     mapping(bytes32 => uint256) public state_invalidationMapping;
     uint256 public state_lastValsetNonce = 0;
+    uint256 public state_lastValsetHeight = 0;
     uint256 public state_lastEventNonce = 0;
+    uint256 public state_lastEventHeight = 0;
 
     // These are set once at initialization
     bytes32 public state_hyperionId;
@@ -149,7 +151,8 @@ contract Hyperion is
         state_powerThreshold = _powerThreshold;
         state_lastValsetCheckpoint = newCheckpoint;
         state_lastEventNonce = state_lastEventNonce + 1;
-
+        state_lastValsetHeight = block.number;
+        state_lastEventHeight = block.number;
         // LOGS
 
         emit ValsetUpdatedEvent(
@@ -360,6 +363,9 @@ contract Hyperion is
         // Store new nonce
         state_lastValsetNonce = _newValset.valsetNonce;
 
+        // Store new valset height
+        state_lastValsetHeight = block.number;
+
         // Send submission reward to msg.sender if reward token is a valid value
         if (
             _newValset.rewardToken != address(0) && _newValset.rewardAmount != 0
@@ -372,6 +378,7 @@ contract Hyperion is
 
         // LOGS
         state_lastEventNonce = state_lastEventNonce + 1;
+        state_lastEventHeight = block.number;
         emit ValsetUpdatedEvent(
             _newValset.valsetNonce,
             state_lastEventNonce,
@@ -507,6 +514,7 @@ contract Hyperion is
         // LOGS scoped to reduce stack depth
         {
             state_lastEventNonce = state_lastEventNonce + 1;
+            state_lastEventHeight = block.number;
             emit TransactionBatchExecutedEvent(
                 _batchNonce,
                 _tokenContract,
@@ -529,7 +537,7 @@ contract Hyperion is
             transferAmount = _amount;
 
             state_lastEventNonce = state_lastEventNonce + 1;
-
+            state_lastEventHeight = block.number;
             emit SendToHeliosEvent(
                 _tokenContract,
                 msg.sender,
@@ -555,7 +563,7 @@ contract Hyperion is
             transferAmount = balanceAfterTransfer - balanceBeforeTransfer;
 
             state_lastEventNonce = state_lastEventNonce + 1;
-
+            state_lastEventHeight = block.number;
             uint8 decimalsValue = IERC20Metadata(_tokenContract).decimals();
 
             emit SendToHeliosEvent(
@@ -589,6 +597,7 @@ contract Hyperion is
 
         // Fire an event to let the Cosmos module know
         state_lastEventNonce = state_lastEventNonce + 1;
+        state_lastEventHeight = block.number;
         emit ERC20DeployedEvent(
             _cosmosDenom,
             address(erc20),

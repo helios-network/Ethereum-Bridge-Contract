@@ -22,6 +22,16 @@ module.exports = {
         }
       }
   },
+    sepolia: {
+      // truffle deploy --network avax
+      url: `https://eth-sepolia.public.blastapi.io`,
+      accounts: [secret.MMENOMIC],
+      verify: {
+        etherscan: {
+          apiUrl: 'https://sepolia.etherscan.io'
+        }
+      }
+  },
     bsc: {
         // truffle deploy --network avax
         url: `https://bsc-dataseed4.binance.org`,

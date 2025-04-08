@@ -2,13 +2,13 @@ const hre = require("hardhat");
 
 async function main() {
 
-    const HyperionAddress = "0x007660aaE00Bd5DBeA00A003A6c92cE6Da134c02";
+    const HyperionAddress = "0x87180495C8393C810fBD0882265B4C3b1EF2431e";
     const hyperionContract = (await hre.ethers.getContractFactory("Hyperion")).attach(HyperionAddress);
 
-    const ERC20_NAME="CheckDot"
-    const ERC20_SYMBOL="CDT"
+    const ERC20_NAME="Helios"
+    const ERC20_SYMBOL="HLS"
     const ERC20_DECIMALS=18
-    const SUPPLY = hre.ethers.utils.parseEther("10000")
+    const SUPPLY = hre.ethers.utils.parseEther("100000")
 
     const result = await hyperionContract.deployERC20WithSupply("", ERC20_NAME, ERC20_SYMBOL, ERC20_DECIMALS, SUPPLY);
 

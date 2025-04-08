@@ -2,10 +2,10 @@ const hre = require("hardhat");
 
 async function main() {
 
-    const HyperionAddress = "0x007660aaE00Bd5DBeA00A003A6c92cE6Da134c02";
+    const HyperionAddress = "0xB8ed88AcD8b7ac80d9f546F4D75F33DD19dD5746";
     const hyperionContract = (await hre.ethers.getContractFactory("Hyperion")).attach(HyperionAddress);
 
-    const HYPERION_ID = 21
+    const HYPERION_ID = 22
     const HYPERION_ID_BYTE32 = hre.ethers.utils.hexZeroPad(hre.ethers.utils.hexlify(HYPERION_ID), 32);// "0x0000000000000000000000000000000000000000000000000000000000000000"
     const POWER_THRESHOLD=1431655765
     const VALIDATOR_ADDRESSES=["0x17267eB1FEC301848d4B5140eDDCFC48945427Ab"]

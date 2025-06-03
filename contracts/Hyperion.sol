@@ -171,34 +171,6 @@ contract Hyperion is
         return state_lastBatchNonces[_erc20Address];
     }
 
-    function callData(
-        address _contractAddress,
-        string memory _methodName,
-        bytes memory _args
-    ) public view returns (bytes memory data, bytes memory err) {
-        // Encode the function call with the method name and arguments
-        bytes memory encodedData = abi.encodePacked(
-            abi.encodeWithSignature(_methodName),
-            _args
-        );
-
-        // Perform the call
-        (bool success, bytes memory returnData) = _contractAddress.staticcall(encodedData);
-
-        if (success) {
-            // If the call was successful, return the data and an empty error
-            return (returnData, "");
-        } else {
-            if (returnData.length == 0) {
-                err = bytes("Unknown error");
-            } else {
-                err = returnData;
-            }
-            // If the call failed, return an empty data and the error message
-            return ("", err);
-        }
-    }
-
     // Utility function to verify geth style signatures
     function verifySig(
         address _signer,
@@ -506,7 +478,14 @@ contract Hyperion is
 
                 if (totalFee > 0) {
                     // Send transaction fees to msg.sender
-                    IERC20(_tokenContract).safeTransfer(msg.sender, totalFee);
+                    if (isHeliosNativeToken[_tokenContract]) {
+                        CosmosERC20(_tokenContract).mint(
+                            msg.sender,
+                            totalFee
+                        );
+                    } else {
+                        IERC20(_tokenContract).safeTransfer(msg.sender, totalFee);
+                    }
                 }
             }
         }

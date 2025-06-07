@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.0;
 
+import "./@openzeppelin/contracts/ERC20.sol";
+import "./@openzeppelin/contracts/Ownable.sol";
 import "./@openzeppelin/contracts/IERC20.sol";
 import "./@openzeppelin/contracts/IERC20Metadata.sol";
 import "./@openzeppelin/contracts/SafeERC20.sol";
@@ -9,9 +11,31 @@ import "./@openzeppelin/contracts/utils/Address.sol";
 import "./@openzeppelin/contracts/utils/Initializable.sol";
 import "./@openzeppelin/contracts/utils/Pausable.sol";
 import "./@openzeppelin/contracts/security/ReentrancyGuard.sol";
-
-import "./HeliosToken.sol";
 import "./@openzeppelin/contracts/OwnableUpgradeableWithExpiry.sol";
+
+contract HeliosERC20 is ERC20, Ownable {
+    uint8 private immutable _decimals;
+
+    constructor(
+        string memory name_,
+        string memory symbol_,
+        uint8 decimals_
+    ) ERC20(name_, symbol_) {
+        _decimals = decimals_;
+    }
+
+    function decimals() public view virtual override returns (uint8) {
+        return _decimals;
+    }
+
+    function mint(address account, uint256 amount) public onlyOwner {
+        _mint(account, amount);
+    }
+
+    function burn(address account, uint256 amount) public onlyOwner {
+        _burn(account, amount);
+    }
+}
 
 // This is used purely to avoid stack too deep errors
 // represents everything about a given validator set

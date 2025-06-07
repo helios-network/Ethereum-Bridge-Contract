@@ -5,6 +5,10 @@ async function main() {
 
   const contract = await hre.ethers.getContractFactory("Hyperion");
 
+  fs.writeFileSync("contract.json", JSON.stringify({
+    bytecode: contract.bytecode
+  }, null, 2));
+
   const covers = await contract.deploy();
 
   await covers.deployed();

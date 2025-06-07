@@ -1,11 +1,9 @@
 gen: solidity-wrappers
 
 solidity-wrappers: 
-	@docker build -t solidity-abigen -f DockerFile.abigen .
-	@docker run --rm \
+	@docker build --platform=linux/amd64 -t solidity-abigen -f DockerFile.abigen .
+	@docker run --platform=linux/amd64 --rm \
 		-v $$(pwd):/project \
-		-e CONTRACT_PATH="/project/contracts/CosmosToken.sol" \
-		-e OUTPUT_DIR="/project/wrappers" \
 		solidity-abigen
 
 exportwrappers:

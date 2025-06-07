@@ -3,49 +3,81 @@
 CONTRACT_DIR=${CONTRACT_DIR:-"/project/contracts"}
 OUTPUT_DIR=${OUTPUT_DIR:-"/project/wrappers"}
 PKG_NAME=${PKG_NAME:-"wrappers"}
-TYPE_NAME=${TYPE_NAME:-"hyperion"}
 
 cd "$CONTRACT_DIR" || { echo "- Contract directory not found!"; exit 1; }
-
+mkdir -p "$OUTPUT_DIR"
 shopt -s nullglob
 
-mkdir /project/wrappers
+apt-get install -y jq
 
 for CONTRACT_FILE in *.sol; do
     echo "- Processing contract file: ${CONTRACT_FILE}"
 
-    SOLIDITY_CONTRACT_NAME=$(grep -oP 'contract\s+\K\w+' "$CONTRACT_FILE" | head -n1)
-
-    if [[ -z "$SOLIDITY_CONTRACT_NAME" ]]; then
-        echo "- No contract found in ${CONTRACT_FILE}!"
-        continue
-    fi
-
-    echo "- Contract name detected: ${SOLIDITY_CONTRACT_NAME}"
-
-    echo "- Compiling contract ${CONTRACT_FILE} with solc..."
-
-    COMBINED_JSON_FILE="${OUTPUT_DIR}/${SOLIDITY_CONTRACT_NAME}_combined.json"
-
-    solc --optimize --via-ir --combined-json abi,bin "$CONTRACT_FILE" > "$COMBINED_JSON_FILE"
-
-    if [[ ! -f "$COMBINED_JSON_FILE" ]]; then
-        echo "- Combined JSON not generated for ${SOLIDITY_CONTRACT_NAME}!"
-        continue
-    fi
-
-    CONTRACT_OUTPUT_DIR="${OUTPUT_DIR}/${SOLIDITY_CONTRACT_NAME}.sol"
+    CONTRACT_OUTPUT_DIR="${OUTPUT_DIR}/${CONTRACT_FILE}"
     mkdir -p "$CONTRACT_OUTPUT_DIR"
 
-    echo "- Generating Go wrapper via abigen..."
+    # Crée l'entrée JSON standard pour solc
+    SOLC_INPUT=$(jq -n \
+    --arg filename "$CONTRACT_FILE" \
+    --arg content "$(cat "$CONTRACT_FILE")" \
+    '{
+        language: "Solidity",
+        sources: {
+        ($filename): { content: $content }
+        },
+        settings: {
+        optimizer: { enabled: true, runs: 1000000 },
+        metadata: { useLiteralContent: true },
+        evmVersion: "paris",
+        outputSelection: {
+            "*": {
+            "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode"
+            ]
+            }
+        }
+        }
+    }')
 
-    abigen --combined-json="$COMBINED_JSON_FILE" \
-           --pkg="$PKG_NAME" \
-           --type="$TYPE_NAME" \
-           --out="${CONTRACT_OUTPUT_DIR}/wrapper.go"
 
-    echo "- Wrapper generated at: ${CONTRACT_OUTPUT_DIR}/wrapper.go"
+    COMPILED_JSON="${CONTRACT_OUTPUT_DIR}/compiled.json"
 
-    rm -f ${OUTPUT_DIR}/*_combined.json
-    echo "- Temporary combined JSON files cleaned up."
+    echo "$SOLC_INPUT" | solc --standard-json > "$COMPILED_JSON"
+
+    # Liste tous les contrats extraits
+    CONTRACT_NAMES=$(jq -r ".contracts[\"$CONTRACT_FILE\"] | keys[]" "$COMPILED_JSON")
+
+    for CONTRACT_NAME in $CONTRACT_NAMES; do
+        echo "- Generating Go wrapper for contract: $CONTRACT_NAME"
+
+        ABI=$(jq -r ".contracts[\"$CONTRACT_FILE\"][\"$CONTRACT_NAME\"].abi" "$COMPILED_JSON")
+        BIN=$(jq -r ".contracts[\"$CONTRACT_FILE\"][\"$CONTRACT_NAME\"].evm.bytecode.object" "$COMPILED_JSON")
+
+        # Skip if ABI or BIN is empty
+        if [[ "$ABI" == "null" || "$BIN" == "null" || -z "$BIN" ]]; then
+            echo "  ⛔ ABI or BIN missing for $CONTRACT_NAME, skipping..."
+            continue
+        fi
+
+        echo "$ABI" > "${CONTRACT_OUTPUT_DIR}/${CONTRACT_NAME}.abi"
+        echo "$BIN" > "${CONTRACT_OUTPUT_DIR}/${CONTRACT_NAME}.bin"
+
+        abigen \
+            --abi "${CONTRACT_OUTPUT_DIR}/${CONTRACT_NAME}.abi" \
+            --bin "${CONTRACT_OUTPUT_DIR}/${CONTRACT_NAME}.bin" \
+            --pkg "$PKG_NAME" \
+            --type "$CONTRACT_NAME" \
+            --out "${CONTRACT_OUTPUT_DIR}/${CONTRACT_NAME}.go"
+
+        rm -rf "${CONTRACT_OUTPUT_DIR}/${CONTRACT_NAME}.abi"
+        rm -rf "${CONTRACT_OUTPUT_DIR}/${CONTRACT_NAME}.bin"
+
+        echo "  ✅ Wrapper generated: ${CONTRACT_OUTPUT_DIR}/${CONTRACT_NAME}.go"
+    done
+
+    rm -rf "${CONTRACT_OUTPUT_DIR}/wrapper.go"
+
+    echo "- Done with file: $CONTRACT_FILE"
 done

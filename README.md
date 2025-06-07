@@ -38,6 +38,20 @@ Required ../hyperion repository
 
 `make exportwrappers`
 
+## verify contract
+
+```shell
+npx hardhat verify --network amoy 0x0000000000000000000000000000000000000000
+```
+
+## if you want to verify contract deployed from hyperion program with the wrappers
+
+```shell
+npx hardhat run --network amoy scripts/extract-input.js
+# then you will get the input data in the verify-input.json file
+# then utilise this file in the explorer of the network you deployed to verify the contract
+```
+
 ## Audit
 
 - **Audit File** : [Audit](https://github.com/helios-network/Ethereum-Bridge-Contract/blob/main/audit.pdf).

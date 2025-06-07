@@ -2,7 +2,7 @@ const hre = require("hardhat");
 
 async function main() {
 
-    const HyperionAddress = "0xA2512e1f33020d34915124218EdbEC20901755b2";
+    const HyperionAddress = "0x3fdce68829b7379F37Bc3078B29B4A3568f9Ad37";
     const hyperionContract = (await hre.ethers.getContractFactory("Hyperion")).attach(HyperionAddress);
 
     const HELIOS_ERC20_DENOM="ahelios"

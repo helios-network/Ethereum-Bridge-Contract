@@ -8,7 +8,8 @@ module.exports = {
   etherscan: {
     apiKey: {
       bsc: secret.API_KEY,
-      mainnet: secret.ETHER_SCAN_API_KEY
+      mainnet: secret.ETHER_SCAN_API_KEY,
+      sepolia: secret.ETHER_SCAN_API_KEY
     }
   },
   networks: {
@@ -31,6 +32,24 @@ module.exports = {
           apiUrl: 'https://sepolia.etherscan.io'
         }
       }
+  },
+    fuji: {
+    url: `https://api.avax-test.network/ext/bc/C/rpc`,
+    accounts: [secret.MMENOMIC],
+    verify: {
+      etherscan: {
+        apiUrl: 'https://testnet.snowtrace.io'
+      }
+    }
+  },
+  bsctestnet: {
+    url: `https://bsc-dataseed.ninicoin.io`,
+    accounts: [secret.MMENOMIC],
+    verify: {
+      etherscan: {
+        apiUrl: 'https://testnet.bscscan.com'
+      }
+    }
   },
     bsc: {
         // truffle deploy --network avax

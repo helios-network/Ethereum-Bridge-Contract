@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "./@openzeppelin/contracts/ERC20.sol";
 import "./@openzeppelin/contracts/Ownable.sol";
 
-contract CosmosERC20 is ERC20, Ownable {
+contract HeliosERC20 is ERC20, Ownable {
     uint8 private immutable _decimals;
 
     constructor(

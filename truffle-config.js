@@ -5,7 +5,12 @@ module.exports = {
   plugins: ['solidity-coverage', 'truffle-plugin-verify'],
   api_keys: {
     bscscan: secret.API_KEY,
-    etherscan: secret.ETHER_SCAN_API_KEY
+    etherscan: {
+      apiKey: {
+        mainnet: secret.ETHER_SCAN_API_KEY,
+        sepolia: secret.ETHER_SCAN_API_KEY
+      }
+    }
   },
   networks: {
     development: {

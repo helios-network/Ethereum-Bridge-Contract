@@ -10,7 +10,7 @@ import "./@openzeppelin/contracts/utils/Initializable.sol";
 import "./@openzeppelin/contracts/utils/Pausable.sol";
 import "./@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-import "./CosmosToken.sol";
+import "./HeliosToken.sol";
 import "./@openzeppelin/contracts/OwnableUpgradeableWithExpiry.sol";
 
 // This is used purely to avoid stack too deep errors
@@ -62,9 +62,9 @@ contract Hyperion is
 
     // TransactionBatchExecutedEvent and SendToHeliosEvent both include the field _eventNonce.
     // This is incremented every time one of these events is emitted. It is checked by the
-    // Cosmos module to ensure that all events are received in order, and that none are lost.
+    // Helios module to ensure that all events are received in order, and that none are lost.
     //
-    // ValsetUpdatedEvent does not include the field _eventNonce because it is never submitted to the Cosmos
+    // ValsetUpdatedEvent does not include the field _eventNonce because it is never submitted to the Helios
     // module. It is purely for the use of relayers to allow them to successfully submit batches.
     event TransactionBatchExecutedEvent(
         uint256 indexed _batchNonce,
@@ -80,7 +80,7 @@ contract Hyperion is
         string _data
     );
     event ERC20DeployedEvent(
-        string _cosmosDenom,
+        string _heliosDenom,
         address indexed _tokenContract,
         string _name,
         string _symbol,
@@ -361,8 +361,8 @@ contract Hyperion is
         );
     }
 
-    // submitBatch processes a batch of Cosmos -> Ethereum transactions by sending the tokens in the transactions
-    // to the destination addresses. It is approved by the current Cosmos validator set.
+    // submitBatch processes a batch of Helios -> Ethereum transactions by sending the tokens in the transactions
+    // to the destination addresses. It is approved by the current Helios validator set.
     // Anyone can call this function, but they must supply valid signatures of state_powerThreshold of the current valset over
     // the batch.
     function submitBatch(
@@ -462,7 +462,7 @@ contract Hyperion is
                 uint256 totalFee;
                 for (uint256 i = 0; i < _amounts.length; i++) {
                     if (isHeliosNativeToken[_tokenContract]) {
-                        CosmosERC20(_tokenContract).mint(
+                        HeliosERC20(_tokenContract).mint(
                             _destinations[i],
                             _amounts[i]
                         );
@@ -479,7 +479,7 @@ contract Hyperion is
                 if (totalFee > 0) {
                     // Send transaction fees to msg.sender
                     if (isHeliosNativeToken[_tokenContract]) {
-                        CosmosERC20(_tokenContract).mint(
+                        HeliosERC20(_tokenContract).mint(
                             msg.sender,
                             totalFee
                         );
@@ -511,7 +511,7 @@ contract Hyperion is
         uint256 transferAmount;
 
         if (isHeliosNativeToken[_tokenContract]) {
-            CosmosERC20(_tokenContract).burn(msg.sender, _amount);
+            HeliosERC20(_tokenContract).burn(msg.sender, _amount);
 
             transferAmount = _amount;
 
@@ -566,19 +566,19 @@ contract Hyperion is
     }
 
     function deployERC20(
-        string calldata _cosmosDenom,
+        string calldata _heliosDenom,
         string calldata _name,
         string calldata _symbol,
         uint8 _decimals
     ) external {
-        CosmosERC20 erc20 = new CosmosERC20(_name, _symbol, _decimals);
+        HeliosERC20 erc20 = new HeliosERC20(_name, _symbol, _decimals);
         isHeliosNativeToken[address(erc20)] = true;
 
-        // Fire an event to let the Cosmos module know
+        // Fire an event to let the Hyperion module know
         state_lastEventNonce = state_lastEventNonce + 1;
         state_lastEventHeight = block.number;
         emit ERC20DeployedEvent(
-            _cosmosDenom,
+            _heliosDenom,
             address(erc20),
             _name,
             _symbol,
@@ -595,7 +595,7 @@ contract Hyperion is
         uint8 _decimals,
         uint256 supply
     ) external {
-        CosmosERC20 erc20 = new CosmosERC20(_name, _symbol, _decimals);
+        HeliosERC20 erc20 = new HeliosERC20(_name, _symbol, _decimals);
         erc20.mint(msg.sender, supply);
     }
 

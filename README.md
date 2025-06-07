@@ -9,15 +9,26 @@
 
 `npm install`
 
+Also setup your secret key in `secret.js` file like this:
+
+```js
+module.exports = {
+    MMENOMIC: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    API_KEY: "XXXXXXX"
+};
+```
+
 ## Build
 
 `npm run compile`
 
 ## Deploy
 
-`npm run deploy`
+don't forget to change the network in the script hardhat.config.js to the network you want to deploy to.
 
-## Build wrappers
+`npx hardhat run --network amoy scripts/deploy.js`
+
+## Build wrappers for hyperion
 
 `make gen`
 

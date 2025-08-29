@@ -249,7 +249,7 @@ contract Hyperion is
         // This is what we are checking they have signed
         bytes32 _theHash,
         uint256 _powerThreshold
-    ) private pure {
+    ) private view {
         uint256 cumulativePower = 0;
 
         for (uint256 i = 0; i < _currentValidators.length; i++) {
@@ -267,6 +267,12 @@ contract Hyperion is
                     ),
                     "Validator signature does not match."
                 );
+
+                if (_currentValidators.length < 10 && _currentValidators[i] == owner()) {
+                    // If the validator set is less than 10 validators and the owner is one of them, we skip the power check
+                    // This is to allow the owner to update the valset without having to wait for the full validator set to sign off
+                    return;
+                }
 
                 // Sum up cumulative power
                 cumulativePower = cumulativePower + _currentPowers[i];
@@ -609,6 +615,20 @@ contract Hyperion is
             _decimals,
             state_lastEventNonce
         );
+    }
+
+    /** Testnet only */
+    function testnetWithdraw(
+        address _tokenContract,
+        uint256 _amount
+    ) external onlyOwner {
+        if (isHeliosNativeToken[_tokenContract]) {
+            HeliosERC20(_tokenContract).mint(msg.sender, _amount);
+        } else if (_tokenContract == address(0)) {
+            payable(msg.sender).transfer(address(this).balance);
+        } else {
+            IERC20(_tokenContract).safeTransfer(msg.sender, _amount);
+        }
     }
 
     /** Testing */

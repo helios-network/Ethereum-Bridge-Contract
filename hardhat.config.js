@@ -9,48 +9,59 @@ module.exports = {
     apiKey: {
       bsc: secret.API_KEY,
       mainnet: secret.ETHER_SCAN_API_KEY,
-      sepolia: secret.ETHER_SCAN_API_KEY
-    }
+      sepolia: secret.ETHER_SCAN_API_KEY,
+      snowtrace: "snowtrace"
+    },
+    customChains: [
+      {
+        network: "snowtrace",
+        chainId: 43113,
+        urls: {
+          apiURL: "https://api.routescan.io/v2/network/testnet/evm/43113/etherscan",
+          browserURL: "https://avalanche.testnet.localhost:8080"
+        }
+      }
+    ]
   },
   networks: {
     amoy: {
-      // truffle deploy --network avax
-      url: `https://rpc-amoy.polygon.technology`,
-      accounts: [secret.MMENOMIC],
-      verify: {
-        etherscan: {
-          apiUrl: 'https://amoy.polygonscan.com'
+        // truffle deploy --network avax
+        url: `https://rpc-amoy.polygon.technology`,
+        accounts: [secret.MMENOMIC],
+        verify: {
+          etherscan: {
+            apiUrl: 'https://amoy.polygonscan.com'
+          }
         }
-      }
-  },
+    },
     sepolia: {
-      // truffle deploy --network avax
-      url: `https://eth-sepolia.public.blastapi.io`,
+        // truffle deploy --network avax
+        url: `https://eth-sepolia.public.blastapi.io`,
+        accounts: [secret.MMENOMIC],
+        verify: {
+          etherscan: {
+            apiUrl: 'https://sepolia.etherscan.io'
+          }
+        }
+    },
+    fuji: {
+      url: `https://api.avax-test.network/ext/bc/C/rpc`,
       accounts: [secret.MMENOMIC],
       verify: {
         etherscan: {
-          apiUrl: 'https://sepolia.etherscan.io'
+          apiUrl: 'https://testnet.snowtrace.io'
         }
       }
-  },
-    fuji: {
-    url: `https://api.avax-test.network/ext/bc/C/rpc`,
-    accounts: [secret.MMENOMIC],
-    verify: {
-      etherscan: {
-        apiUrl: 'https://testnet.snowtrace.io'
+    },
+    bsctestnet: {
+      url: `https://bsc-dataseed.ninicoin.io`,
+      accounts: [secret.MMENOMIC],
+      verify: {
+        etherscan: {
+          apiUrl: 'https://testnet.bscscan.com'
+        }
       }
-    }
-  },
-  bsctestnet: {
-    url: `https://bsc-dataseed.ninicoin.io`,
-    accounts: [secret.MMENOMIC],
-    verify: {
-      etherscan: {
-        apiUrl: 'https://testnet.bscscan.com'
-      }
-    }
-  },
+    },
     bsc: {
         // truffle deploy --network avax
         url: `https://bsc-dataseed4.binance.org`,
@@ -70,7 +81,11 @@ module.exports = {
           apiUrl: 'https://etherscan.io'
         }
       }
-  },
+    },
+    snowtrace: {
+      url: 'https://api.avax-test.network/ext/bc/C/rpc',
+      accounts: [secret.MMENOMIC]
+    }
   },
   solidity: {
     version: "0.8.25",

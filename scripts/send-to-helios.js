@@ -1,13 +1,13 @@
 const hre = require("hardhat");
 
 async function main() {
-  const HyperionAddress = "0xA2512e1f33020d34915124218EdbEC20901755b2";
+  const HyperionAddress = "0x9cf46fff8618421a20e665312e2c88d38bb0b30f";
   const hyperionContract = (
     await hre.ethers.getContractFactory("Hyperion")
   ).attach(HyperionAddress);
 
   const HELIOS_DEST_ADDRESS = "0x882f8A95409C127f0dE7BA83b4Dfa0096C3D8D79"; // the ethAddress format of helios1q7za4flwjq3kel3aau05tkm4l4v2mtx8r6aerj
-  const TOKEN_CONTRACT = "0x959FA4351fA64aad2aE9e55FFd77f341459a012b";
+  const TOKEN_CONTRACT = "0x682074Fe09F711eCAb997CfD5C20Db1fF7d0fc34";
   const TOKEN_AMOUNT = hre.ethers.utils.parseEther("10");
   const DATA = "";
 

@@ -34,6 +34,15 @@ module.exports = {
           }
         }
     },
+    arbitrum: {
+      url: `https://arbitrum-one-rpc.publicnode.com`,
+      accounts: [secret.MMENOMIC],
+      verify: {
+        etherscan: {
+          apiUrl: 'https://arbiscan.io'
+        }
+      }
+    },
     sepolia: {
         // truffle deploy --network avax
         url: `https://eth-sepolia.public.blastapi.io`,

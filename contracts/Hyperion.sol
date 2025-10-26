@@ -37,6 +37,10 @@ contract HeliosERC20 is ERC20, Ownable {
     }
 }
 
+interface ArbSys {
+    function arbBlockNumber() external view returns (uint256);
+}
+
 // This is used purely to avoid stack too deep errors
 // represents everything about a given validator set
 struct ValsetArgs {
@@ -175,8 +179,8 @@ contract Hyperion is
         state_powerThreshold = _powerThreshold;
         state_lastValsetCheckpoint = newCheckpoint;
         state_lastEventNonce = state_lastEventNonce + 1;
-        state_lastValsetHeight = block.number;
-        state_lastEventHeight = block.number;
+        state_lastValsetHeight = getBlockNumber();
+        state_lastEventHeight = getBlockNumber();
         // LOGS
 
         emit ValsetUpdatedEvent(
@@ -366,7 +370,7 @@ contract Hyperion is
         state_lastValsetNonce = _newValset.valsetNonce;
 
         // Store new valset height
-        state_lastValsetHeight = block.number;
+        state_lastValsetHeight = getBlockNumber();
 
         // Send submission reward to msg.sender if reward token is a valid value
         if (
@@ -380,7 +384,7 @@ contract Hyperion is
 
         // LOGS
         state_lastEventNonce = state_lastEventNonce + 1;
-        state_lastEventHeight = block.number;
+        state_lastEventHeight = getBlockNumber();
         emit ValsetUpdatedEvent(
             _newValset.valsetNonce,
             state_lastEventNonce,
@@ -430,7 +434,7 @@ contract Hyperion is
 
             // Check that the block height is less than the timeout height
             require(
-                block.number < _batchTimeout,
+                getBlockNumber() < _batchTimeout,
                 "Batch timeout must be greater than the current block height"
             );
 
@@ -489,7 +493,6 @@ contract Hyperion is
 
             {
                 // Send transaction amounts to destinations
-                uint256 totalFee;
                 for (uint256 i = 0; i < _amounts.length; i++) {
                     if (isHeliosNativeToken[_tokenContract]) {
                         HeliosERC20(_tokenContract).mint(
@@ -502,20 +505,6 @@ contract Hyperion is
                             _amounts[i]
                         );
                     }
-
-                    totalFee = totalFee + _fees[i];
-                }
-
-                if (totalFee > 0) {
-                    // Send transaction fees to msg.sender
-                    if (isHeliosNativeToken[_tokenContract]) {
-                        HeliosERC20(_tokenContract).mint(
-                            msg.sender,
-                            totalFee
-                        );
-                    } else {
-                        IERC20(_tokenContract).safeTransfer(msg.sender, totalFee);
-                    }
                 }
             }
         }
@@ -523,7 +512,7 @@ contract Hyperion is
         // LOGS scoped to reduce stack depth
         {
             state_lastEventNonce = state_lastEventNonce + 1;
-            state_lastEventHeight = block.number;
+            state_lastEventHeight = getBlockNumber();
             emit TransactionBatchExecutedEvent(
                 _batchNonce,
                 _tokenContract,
@@ -546,7 +535,7 @@ contract Hyperion is
             transferAmount = _amount;
 
             state_lastEventNonce = state_lastEventNonce + 1;
-            state_lastEventHeight = block.number;
+            state_lastEventHeight = getBlockNumber();
             emit SendToHeliosEvent(
                 _tokenContract,
                 msg.sender,
@@ -572,7 +561,7 @@ contract Hyperion is
             transferAmount = balanceAfterTransfer - balanceBeforeTransfer;
 
             state_lastEventNonce = state_lastEventNonce + 1;
-            state_lastEventHeight = block.number;
+            state_lastEventHeight = getBlockNumber();
             uint8 decimalsValue = IERC20Metadata(_tokenContract).decimals();
 
             emit SendToHeliosEvent(
@@ -606,7 +595,7 @@ contract Hyperion is
 
         // Fire an event to let the Hyperion module know
         state_lastEventNonce = state_lastEventNonce + 1;
-        state_lastEventHeight = block.number;
+        state_lastEventHeight = getBlockNumber();
         emit ERC20DeployedEvent(
             _heliosDenom,
             address(erc20),
@@ -631,6 +620,12 @@ contract Hyperion is
         }
     }
 
+    function transferTokenOwnership(address _tokenContract, address _newOwner) external onlyOwner {
+        if (isHeliosNativeToken[_tokenContract]) {
+            HeliosERC20(_tokenContract).transferOwnership(_newOwner);
+        }
+    }
+
     /** Testing */
     function deployERC20WithSupply(
         string calldata,
@@ -641,6 +636,15 @@ contract Hyperion is
     ) external {
         HeliosERC20 erc20 = new HeliosERC20(_name, _symbol, _decimals);
         erc20.mint(msg.sender, supply);
+    }
+
+    function getBlockNumber() public view returns (uint256) {
+        // Arbitrum only
+        if (state_hyperionId == 0x000000000000000000000000000000000000000000000000000000000000a4b1) {
+            return ArbSys(0x0000000000000000000000000000000000000064).arbBlockNumber();
+        } else {
+            return block.number;
+        }
     }
 
     function emergencyPause() external onlyOwner {

@@ -1,7 +1,7 @@
 # Stage 1
 FROM golang:1.23.3-bullseye AS build
 WORKDIR /app
-RUN go install github.com/ethereum/go-ethereum/cmd/abigen@latest
+RUN go install github.com/ethereum/go-ethereum/cmd/abigen@v1.16.2
 # Stage 2
 FROM node:18.16.0 AS final
 WORKDIR /app
